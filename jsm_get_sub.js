@@ -5,8 +5,8 @@ const $ = API("JSM", true); // API("APP") --> 无log输出
 let user = {};
 
 // bark 推送
-//user.bark_url = `https://api.day.app/aDM8YW6EEmNdv2MFvChEhc/Copy%20SubLink?copy=`;   // + user.v2Sub;
-user.bark_url = `https://api.day.app/aDM8YW6EEmNdv2MFvChEhc/`;   
+//user.bark_url = ` ` + user.v2Sub;
+user.bark_url = ``;   
 
 
 
@@ -70,8 +70,8 @@ function register() {
         const body = JSON.parse(resp.body);
         //$.log(body.msg)  直接console.log(unicode)也可以看到中文
         const m = decodeURIComponent(body.msg);  //unicode转中文  
-        $.log("000000000000 register 0000000000000");
-        $.log(m);
+        //$.log("000000000000 register 0000000000000");
+        //$.log(m);
     })
     .catch((e) => {
         $.error("000000000000 register error 0000000000000");
@@ -94,8 +94,8 @@ function getCookies() {
             c = c + cookies[i].split(" ")[0];
         };
         user.cookies = c;
-        $.log("000000000000 getCookies 0000000000000");
-        $.log(user.cookies);
+        //$.log("000000000000 getCookies 0000000000000");
+        //$.log(user.cookies);
         //$.log(body);
     })
     .catch((e) => {
@@ -158,7 +158,7 @@ function logout() {
     .then((resp) => {
         const body = resp;
         //$.log(body);
-        $.log("000000000000 logout 0000000000000");
+        //$.log("000000000000 logout 0000000000000");
         $.log("退出登录成功")
     })
     .catch((e) => {
@@ -175,7 +175,7 @@ function bark() {
     .then((resp) => {
         const body = JSON.parse(resp.body).message;
         //$.log(body);
-        $.log("000000000000 bark 0000000000000");
+        //$.log("000000000000 bark 0000000000000");
         $.log(body)
     })
     .catch((e) => {
@@ -193,7 +193,7 @@ function bark() {
     await getCookies();
     await getSub();
     await logout();
-    await bark();
+    //await bark();
 /*     $.log(user)
     $.log(user.host) */
 })().finally(() => $.done());
