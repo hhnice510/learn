@@ -1,12 +1,14 @@
 const $ = API("JSM", true); // API("APP") --> 无log输出
 
+var LogDetails = false; //是否开启响应日志, true则开启
 
 // 预留的空对象, 便于函数之间读取数据
 let user = {};
 
-// bark 推送
-//user.bark_url = ` ` + user.v2Sub;
-user.bark_url = ``;   
+// bark 推送 默认不开启
+var bark_api = ``;
+//user.bark_url = `https://xxxx`;   // + user.v2Sub;
+//user.bark = bark_api //+ user.v2Sub;  
 
 
 
@@ -25,11 +27,9 @@ const h = {
     'Referer' : user.register_url,
     'Accept-Language' : `zh-CN,zh-Hans;q=0.9`,
     'Accept' : `application/json, text/javascript, */*; q=0.01`
-};
+    };
 
-
-// 修改email注册新账号
-const b = `email=xxooxxoofzyxlb%40gmail.com&name=zxcv&passwd=zxcvbnm123&repasswd=zxcvbnm123&code=0`;
+const b = `email=xxxxxxxx%40gmail.com&name=zxcv&passwd=zxcvbnm123&repasswd=zxcvbnm123&code=0`;
 
 
 
@@ -43,6 +43,7 @@ function getUrl() {
     })
     .then((resp) => {
         const body = resp.body;
+        //console.log(typeof body);
         user.origin_url = body.match(/<a[^>]*href=['"]([^"]*)['"][^>]*>用户中心<\/a>/)[1];
         user.host = user.origin_url.match(/https?:\/\/(.*)['\/]/)[1];
         user.register_url = user.origin_url + `auth/register`;
@@ -60,6 +61,7 @@ function getUrl() {
 
 //注册
 function register() {
+    //$.log(user.register_url);
     return $.http.post({
         url: user.register_url,
         headers: h,
@@ -67,11 +69,12 @@ function register() {
         //body: `email=${encodeURIComponent($.uid)}&name=${encodeURIComponent($.n)}&passwd=${encodeURIComponent($.pwd)}&repasswd=${encodeURIComponent($.repwd)}&code=0`
     })
     .then((resp) => {
-        const body = JSON.parse(resp.body);
-        //$.log(body.msg)  直接console.log(unicode)也可以看到中文
-        const m = decodeURIComponent(body.msg);  //unicode转中文  
-        //$.log("000000000000 register 0000000000000");
-        //$.log(m);
+        const body = resp.body;
+        if (LogDetails) {
+            $.log("000000000000 register 0000000000000");
+            $.log(body);
+        };
+
     })
     .catch((e) => {
         $.error("000000000000 register error 0000000000000");
@@ -94,9 +97,12 @@ function getCookies() {
             c = c + cookies[i].split(" ")[0];
         };
         user.cookies = c;
-        //$.log("000000000000 getCookies 0000000000000");
-        //$.log(user.cookies);
-        //$.log(body);
+        if (LogDetails) {
+            $.log("000000000000 getCookies 0000000000000");
+            $.log(user.cookies);
+            $.log(body);
+        };
+
     })
     .catch((e) => {
         $.error("000000000000 getCookies error 0000000000000");
@@ -109,7 +115,7 @@ function getCookies() {
 //获取订阅链接
 function getSub() {
     var headers = {     //user页面headers单独设置
-        //'Cookie' : `email=0000000%40qq.com; expire_in=1664644060; ip=bcxxxxxxxx; key=ffxxxxxx; uid=9xxxx; PHPSESSID=axxxxxxx; lang=zh-cn`,
+        //'Cookie' : `email=273728828%40qq.com; expire_in=1664644060; ip=bc8085d049fee98b79591747e1873e1a; key=ffbcd00905b48d9bcbf242e968adea258a07581b7c54b; uid=92764; PHPSESSID=ajbf51d00ulbrjg97pkktrkgk5; lang=zh-cn`,
         'Cookie' : user.cookies,
         'Accept' : `text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8`,
         'Connection' : `keep-alive`,
@@ -126,7 +132,9 @@ function getSub() {
     })
     .then((resp) => {
         user.v2Sub = resp.body.match(/<a[^>]*data-clipboard-text=['"]([^"]*)['"]><[^>]*malio-v2rayng">/)[1];
-        $.log("000000000000 getSub 0000000000000");
+        if (LogDetails) {
+            $.log("000000000000 getSub 0000000000000");
+        };
         $.log(user.v2Sub);
         $.notify("JsmGetSub", "SubLink", user.v2Sub, {
             "open-url": user.v2Sub,
@@ -142,6 +150,7 @@ function getSub() {
 //logout
 function logout() {
     var headers = {     //user页面headers单独设置
+        //'Cookie' : `email=273728828%40qq.com; expire_in=1664644060; ip=bc8085d049fee98b79591747e1873e1a; key=ffbcd00905b48d9bcbf242e968adea258a07581b7c54b; uid=92764; PHPSESSID=ajbf51d00ulbrjg97pkktrkgk5; lang=zh-cn`,
         'Cookie' : user.cookies,
         'Accept' : `text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8`,
         'Connection' : `keep-alive`,
@@ -151,15 +160,18 @@ function logout() {
         'User-Agent' : user.userAgent,
         'Accept-Language' : `zh-CN,zh-Hans;q=0.9`
     };
+    //$.log(headers)
     return $.http.get({
         url: user.logout_url,
         headers: headers,
     })
     .then((resp) => {
         const body = resp;
-        //$.log(body);
-        //$.log("000000000000 logout 0000000000000");
-        $.log("退出登录成功")
+        if (LogDetails) {
+            $.log("000000000000 logout 0000000000000");
+            $.log("退出登录成功")
+        };
+
     })
     .catch((e) => {
         $.error("000000000000 logout error 0000000000000");
@@ -170,13 +182,16 @@ function logout() {
 //bark 推送
 function bark() {
     return $.http.get({
-        url: user.bark_url + encodeURIComponent(user.v2Sub),
+        url: user.bark_api + encodeURIComponent(user.v2Sub),
     })
     .then((resp) => {
         const body = JSON.parse(resp.body).message;
-        //$.log(body);
-        //$.log("000000000000 bark 0000000000000");
-        $.log(body)
+        if (LogDetails) {
+            $.log(body);
+            $.log("000000000000 bark 0000000000000");
+            $.log(body)
+        };
+
     })
     .catch((e) => {
         $.error("000000000000 bark error 0000000000000");
@@ -187,20 +202,18 @@ function bark() {
 
 
 !(async () => {
+    /* const sign_url = await getUrl() + `auth/register`;
+    $.log(sign_url); */
     await getUrl();
     await logout();
     await register();
     await getCookies();
     await getSub();
     await logout();
-    //await bark();
-/*     $.log(user)
-    $.log(user.host) */
+    if (bark_api) {
+        await bark();
+    };
 })().finally(() => $.done());
-
-
-
-
 
 
 
