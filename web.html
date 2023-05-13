@@ -62,25 +62,27 @@
             data: {
                 movies: [],
                 menuItems: [
-                    { label: '数据1', file: '/data1.json' },
-                    { label: '数据2', file: '/data2.json' },
-                    { label: '数据3', file: 'https://paste.gg/p/anonymous/0f93ce422c93454494bc55dfa6dcaa48/files/d902e98b1c2e47899952d22234633edf/raw' }
+                    { label: '数据1', file: '/data1' },
+                    { label: '数据2', file: '/data2' },
+                    { label: '数据3', file: '/data3' }
                 ]
             },
             methods: {
                 loadData(event) {
                     // 获取按钮对应的JSON文件名
-                    let file = `https://movies.com${event.target.getAttribute('data-file')}`;
+                    let file = event.target.getAttribute('data-file');
                     // 清空内容区域
                     this.movies = [];
                     // 使用AJAX获取数据
                     let xhr = new XMLHttpRequest();
-                    xhr.open('GET', file);
+                    xhr.open('GET', `http://example.com/api${file}`);
                     xhr.onload = () => {
                         if (xhr.status === 200) {
                             let data = JSON.parse(xhr.responseText);
                             // 更新电影列表
                             this.movies = data;
+                            // 刷新视图
+                            this.$forceUpdate();
                         } else {
                             alert('请求失败');
                         }
@@ -90,7 +92,7 @@
             },
             mounted() {
                 // 默认加载第一个JSON文件
-                this.loadData({ target: { getAttribute: () => '/data1.json' } });
+                this.loadData({ target: { getAttribute: () => '/data1' } });
             }
         });
     </script>
