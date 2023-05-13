@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Nice's Box</title>
+    <style>
+        /* 添加样式来控制图片的大小和菜单栏的位置 */
+        .movie_list {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        .movie_item {
+            width: 200px;
+            margin: 10px;
+            text-align: center;
+        }
+
+        .movie_item img {
+            width: 100%;
+        }
+
+        a {
+            text-decoration: none;
+            /* 删除下划线 */
+            color: inherit;
+            /* 让文字继承父元素的颜色 */
+        }
+
+        #menu {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background-color: lightgray;
+            display: flex;
+            justify-content: space-around;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>影视框架</h1>
+    <div class="movie_list" id="content"></div>
+
+    <!-- 添加菜单栏 -->
+    <div id="menu">
+        <button data-file="/data1.json">数据1</button>
+        <button data-file="data2.json">数据2</button>
+        <button
+            data-file="https://paste.gg/p/anonymous/0f93ce422c93454494bc55dfa6dcaa48/files/d902e98b1c2e47899952d22234633edf/raw">数据3</button>
+    </div>
+
+    <script>
+        // 获取页面元素
+        let content = document.getElementById('content');
+        let buttons = document.querySelectorAll('#menu button');
+
+        // 为每个按钮添加点击事件
+        for (let button of buttons) {
+            button.addEventListener('click', () => {
+                // 获取按钮对应的JSON文件名
+                let file = `https://movies.com${button.getAttribute('data-file')}`;
+                // 加载并显示数据
+                loadData(file);
+            });
+        }
+
+        // 定义一个函数来加载并显示数据
+        function loadData(file) {
+            // 清空内容区域
+            content.innerHTML = '';
+            // 使用AJAX获取数据
+            let xhr = new XMLHttpRequest();
+            xhr.open('GET', file);
+            xhr.onload = () => {
+                if (xhr.status === 200) {
+                    let data = JSON.parse(xhr.responseText);
+                    // 在页面上显示数据
+                    for (let item of data) {
+                        let div = document.createElement('div');
+                        div.className = 'movie_item';
+                        div.innerHTML = `<a href="${item.url}" target="_blank"><img src="${item.poster}" alt="${item.title}海报"><p>${item.title}</p></a>`;
+                        content.appendChild(div);
+                    }
+                } else {
+                    console.error('请求失败');
+                }
+            };
+            xhr.send();
+        }
+
+
+        // 默认加载第一个JSON文件
+        loadData('/data1.json');
+    </script>
+</body>
+
+</html>
